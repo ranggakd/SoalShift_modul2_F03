@@ -86,3 +86,16 @@ NB: Dilarang menggunakan crontab dan tidak memakai argumen ketika menjalankan pr
 **Jawaban**
 
 1. 
+
+---
+
+## Referensi
+
+manual from terminal ubuntu1804  
+http://stackoverflow.com/questions/1442116/ddg#1442131  
+http://stackoverflow.com/questions/347949/ddg#347959  
+https://www.programmingwithbasics.com/2016/03/write-c-program-for-count-character-in.html  
+https://www.unix.com/programming/  24159-how-check-if-directory-file-exist-using-c-c.html  
+http://stackoverflow.com/questions/7663709/ddg#7664227  
+https://codereview.stackexchange.com/questions/5089/adding-time-to-struct-tm  
+
