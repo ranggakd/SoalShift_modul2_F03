@@ -21,7 +21,7 @@ string FileName(int flag)
     string fileName;
     if (flag==0)
     {
-        //initiate firsr time
+        //initiate first time
         fileName = to_string(tm.tm_mday) +":"+ to_string(tm.tm_mon+1) +":"+ to_string(tm.tm_year+1900);
         fileName += "-" + to_string(tm.tm_hour) +":"+ to_string(tm.tm_min);
         return fileName;
