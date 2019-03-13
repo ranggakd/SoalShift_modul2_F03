@@ -99,4 +99,7 @@ https://www.unix.com/programming/24159-how-check-if-directory-file-exist-using-c
 http://stackoverflow.com/questions/7663709/ddg#7664227  
 https://codereview.stackexchange.com/questions/5089/adding-time-to-struct-tm  
 https://stackoverflow.com/questions/25198242/comparing-time-t-values-using-comparison-operators  
+http://stackoverflow.com/questions/40504281/ddg#40504396  
+https://superuser.com/questions/464290/why-is-cat-not-changing-the-access-time  
+https://www.unixtutorial.org/atime-ctime-mtime-in-unix-filesystems  
 
