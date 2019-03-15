@@ -62,7 +62,7 @@ int main() {
     //main program
 
     //buat dir log sesuai soal
-    string pathName="/home/rak/SoalShift_modul2_F03/soal5/log/";
+    string pathName="/home/rak/log/";
     mkdir(pathName.c_str(),0777);
 
     //fork-kan daemon/orphan child

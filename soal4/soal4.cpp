@@ -35,7 +35,7 @@ int main() {
     close(STDERR_FILENO);
 
     //main program
-    string pathEnak="/home/rak/SoalShift_modul2_F03/soal4/Documents/makanan/makan_enak.txt";
+    string pathEnak="/home/rak/Documents/makanan/makan_enak.txt";
     int inc=1;
     //6 loop utama jika diperlukan program berjalan kontinyu
     while(true)
@@ -49,10 +49,9 @@ int main() {
         //jika perbedaan detik program dengan detik akses terakhir file <= 30
         if (difftime(timeProgram,timeEnak)<=30) {
             //generate file diet
-            string pathSehat="/home/rak/SoalShift_modul2_F03/soal4/Documents/makanan/makan_sehat";
+            string pathSehat="/home/rak/Documents/makanan/makan_sehat";
             pathSehat += to_string(inc) + ".txt";
-            FILE *sehat=fopen((char*)pathSehat.c_str(),"w");
-            fclose(sehat);
+            open((char*)pathSehat.c_str(),O_CREAT,0777);
             inc++;
         }
         //setiap 5 detik delay = berjalan setiap 5 detik

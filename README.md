@@ -102,4 +102,7 @@ https://stackoverflow.com/questions/25198242/comparing-time-t-values-using-compa
 http://stackoverflow.com/questions/40504281/ddg#40504396  
 https://superuser.com/questions/464290/why-is-cat-not-changing-the-access-time  
 https://www.unixtutorial.org/atime-ctime-mtime-in-unix-filesystems  
-
+https://stackoverflow.com/questions/28490290/how-can-i-pass-the-redirection-operator-as-an-argument-for-execv/28490398#28490398  
+https://stackoverflow.com/questions/20858381/what-does-bash-c-do  
+https://www.geeksforgeeks.org/dup-dup2-linux-system-call/  
+https://www.geeksforgeeks.org/pipe-system-call/  
