@@ -17,26 +17,122 @@ Catatan : Tidak boleh menggunakan crontab.
 
 **Jawaban**
 
-1. Buat program dibawah ini dengan nama file soal1.cpp di folder yang ditentukan.
+1. Buat program dibawah ini dengan nama file soal1.c di folder yang ditentukan.
 
-```cpp
-//source
+```c
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+
+int main() {
+    pid_t pid, sid;
+    //1 fork parent
+    pid = fork();
+    //error handling
+    if (pid < 0) exit(EXIT_FAILURE);
+    //1 stop parent = orphan process
+    if (pid > 0) exit(EXIT_SUCCESS);
+    //2 ubah mode file agar dapat di r/w
+    umask(0);
+    //3 buat session id unik dari kernel agar dpt berjalan
+    sid = setsid();
+    //error handling
+    if (sid < 0) exit(EXIT_FAILURE);
+    //4 ubah dir kerja ke tempat yang pasti selalu ada
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+    //5 tutup file descriptor std
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    //main program
+    while(1)
+    {
+        //fork yg dilooping
+        pid=fork();
+        int status;
+
+        if (pid==0)
+        {
+            char* bash2[]=
+            {
+            "bash", "-c",
+            "for f in ~/SoalShift_modul2_F03/soal1/gambar/*.png; do a=${f:44}; a=${a:0:-4} ; a=${a}_grey.png ; mv $f /home/rak/modul2/gambar/$a ; done",
+            NULL
+            };
+            execv("/bin/bash",bash2);
+        }
+        else if (pid>0)
+            //wait child
+            while((wait(&status))>0);
+    }
+    exit(EXIT_SUCCESS);
+}
 ```
 Penjelasan:
-```cpp
-//source code here
+```c
+    pid_t pid, sid;
+    //1 fork parent
+    pid = fork();
+    //error handling
+    if (pid < 0) exit(EXIT_FAILURE);
+    //1 stop parent = orphan process
+    if (pid > 0) exit(EXIT_SUCCESS);
+    //2 ubah mode file agar dapat di r/w
+    umask(0);
+    //3 buat session id unik dari kernel agar dpt berjalan
+    sid = setsid();
+    //error handling
+    if (sid < 0) exit(EXIT_FAILURE);
+    //4 ubah dir kerja ke tempat yang pasti selalu ada
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+    //5 tutup file descriptor std
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
 ```
-sub
-```cpp
-//source code here
+Merupakan step untuk daemon proses
+```c
+    while(1)
+    {
+        //fork yg dilooping
+        pid=fork();
+        int status;
+
+        if (pid==0)
+        {
+            char* bash2[]=
+            {
+            "bash", "-c",
+            "for f in ~/SoalShift_modul2_F03/soal1/gambar/*.png; do a=${f:44}; a=${a:0:-4} ; a=${a}_grey.png ; mv $f /home/rak/modul2/gambar/$a ; done",
+            NULL
+            };
+            execv("/bin/bash",bash2);
+        }
+        else if (pid>0)
+            //wait child
+            while((wait(&status))>0);
+    }
 ```
-sub
-```cpp
-//source code here
+Looping utama melakukan fork. Child melakukan eksekusi bash yang bertujuan mengambil seluruh file ekstensi png saja, lalu variabel a menerima nama filenya dan memodifikasi sesuai perintah soal. Kemudian lakukan comman move dari path awal menuju path sesuai soal. Parent memastikan child untuk sekali dieksekusi sebelum dilooping untuk dilakukan fork lagi.
+```c
+    exit(EXIT_SUCCESS);
 ```
-sub
+Default untuk keluar daemon
+
+2. Lalu compile file tadi dan jalankan di terminal
+
+3. Lakukan simulasi test. Hasil akhir bisa dicek di folder terkait.
+
 
 ---
+
 ## NO 2
 
 Pada suatu hari Kusuma dicampakkan oleh Elen karena Elen dimenangkan oleh orang lain. Semua kenangan tentang Elen berada pada file bernama “elen.ku” pada direktori “hatiku”. Karena sedih berkepanjangan, tugas kalian sebagai teman Kusuma adalah membantunya untuk menghapus semua kenangan tentang Elen dengan membuat program C yang bisa mendeteksi owner dan group dan menghapus file “elen.ku” setiap 3 detik dengan syarat ketika owner dan grupnya menjadi “www-data”. Ternyata kamu memiliki kendala karena permission pada file “elen.ku”. Jadi, ubahlah permissionnya menjadi 777. Setelah kenangan tentang Elen terhapus, maka Kusuma bisa move on.  
@@ -110,19 +206,61 @@ int main() {
 ```
 Penjelasan:
 ```cpp
-//source code here
+    pid_t pid, sid;
+    //1 fork parent
+    pid = fork();
+    //error handling
+    if (pid < 0) exit(EXIT_FAILURE);
+    //1 stop parent = orphan process
+    if (pid > 0) exit(EXIT_SUCCESS);
+    //2 ubah mode file agar dapat di r/w
+    umask(0);
+    //3 buat session id unik dari kernel agar dpt berjalan
+    sid = setsid();
+    //error handling
+    if (sid < 0) exit(EXIT_FAILURE);
+    //4 ubah dir kerja ke tempat yang pasti selalu ada
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+    //5 tutup file descriptor std
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
 ```
-sub
+Merupakan step untuk daemon proses
 ```cpp
-//source code here
+    //main program
+    string lokasi="/home/rak/SoalShift_modul2_F03/soal2/hatiku/elen.ku";
+    //6 loop utama jika diperlukan program berjalan kontinyu
+    while(true)
+    {
+        //mendapatkan owner dan groupname dari file
+        struct stat info;
+        stat((char*)lokasi.c_str(), &info);
+        struct passwd *pw = getpwuid(info.st_uid);
+        struct group  *gr = getgrgid(info.st_gid);
+        string usernm(pw->pw_name);
+        string groupnm(gr->gr_name);
+
+        //membandingkan jika samadengan www-data
+        if (usernm=="www-data" && groupnm=="www-data")
+            remove((char*)lokasi.c_str());
+
+        //setiap 3 detik delay = berjalan setiap 3 detik
+        sleep(3);
+    }
 ```
-sub
+Sebelum masuk looping utama, deklarasi string lokasi diisi dengan path sesuai soal. Looping utama melakukan pengambilan info file dari lokasi, khususnya owner dan groupnamenya dan melakukan perbandingan apakah owner dan groupnamenya www-data atau tidak. Jika iya, maka hapus file tersebut. Lalu, delay program 3 detik.
 ```cpp
-//source code here
+    exit(EXIT_SUCCESS);
 ```
-sub
+Default untuk keluar daemon
+
+2. Lalu compile file tadi dan jalankan di terminal
+
+3. Lakukan simulasi test. Buat file dengan owner dan groupname sesuai soal, maka hasilnya akan terhapus.
 
 ---
+
 ## NO 3
 
 Diberikan file campur2.zip. Di dalam file tersebut terdapat folder “campur2”.  
@@ -222,17 +360,83 @@ int main()
 ```
 Penjelasan:
 ```cpp
-//source code here
+    pid_t proses;
+    int pipeF[2];
+    //buat channel pipe
+    pipe(pipeF);
+
+    //fork pertama
+    proses = fork();
+    if (proses==0)
+    {
+        //child1
+        //melakukan unzip file
+        char* zip[]={"unzip", "/home/rak/SoalShift_modul2_F03/soal3/campur2.zip", NULL};
+        execv("/usr/bin/unzip",zip);
+    }
 ```
-sub
+Fork pertama berguna melahirkan anak yang akan mengeksekusi perintah unzip. Parent akan melahirkan anak lain di scope lain.
 ```cpp
-//source code here
+    else if (proses>0)
+        {
+            //parent1
+            //fork kedua
+            int status2;
+            proses = fork();
+            if (proses==0)
+            {
+                //child2
+                //membuat file output
+                char* bash[]={"bash", "-c", "> ~/SoalShift_modul2_F03/soal3/daftar.txt", NULL};
+                execv("/bin/bash",bash);
+            }
+            else if (proses>0)
+            {
+                //parent2
+                //wait untuk child selesai dulu
+                while((wait(&status2))>0);
+
+                //fork ketiga
+                int status3;
+                proses = fork();
+                if (proses==0)
+                {
+                    //child3
+                    //menutup stdin pipe yg tdk terpakai
+                    close(pipeF[0]);
+
+                    //melakukan copying file descriptor, lalu stdout dari program akan tertulis di channel pipe
+                    dup2(pipeF[1], 1);
+
+                    //melakukan filtering file .txt
+                    char* bash2[]=
+                    {
+                    "bash", "-c",
+                    "for f in ~/SoalShift_modul2_F03/soal3/campur2/*; do f=${f:45}; echo $f; done | grep -e txt$ > ~/SoalShift_modul2_F03/soal3/daftar.txt",
+                    NULL
+                    };
+                    execv("/bin/bash",bash2);
+                }
+                else if (proses>0) {
+                    //parent3
+                    //menutup stdout  pipe yg tdk terpakai
+                    close(pipeF[1]);
+
+                    //melakukan read dari channel pipe untuk di write ke file
+                    char tmp[500];
+                    FILE *dst=fopen("/home/rak/SoalShift_modul2_F03/soal3/daftar.txt","w");
+                    while(read(pipeF[0], tmp, sizeof(tmp))!=0)
+                        fputs(tmp,dst);
+                    fclose(dst);
+                }
+            }
+        }
 ```
-sub
-```cpp
-//source code here
-```
-sub
+Fork kedua berguna melahirkan anak yang akan mengeksekusi perintah bash yang bertujuan membuat file daftar.txt. Parent akan menunggu eksekusi anak kedua untuk melakukan eksekusi lain, yakni melahirkan anak yang melakukan write pipe dan mengeksekusi untuk menyaring file ekstensi txt saja, sehingga jawaba disimpan di channel pipe. Parent lalu melakukan read pipe guna menyalin seluruh isi channel pipe pada file daftar.txt.
+
+2. Lalu compile file tadi dan jalankan di terminal
+
+3. Hasil dapat dilihat di daftar.txt
 
 ---
 
@@ -318,17 +522,61 @@ int main() {
 ```
 Penjelasan:
 ```cpp
-//source code here
+    pid_t pid, sid;
+    //1 fork parent
+    pid = fork();
+    //error handling
+    if (pid < 0) exit(EXIT_FAILURE);
+    //1 stop parent = orphan process
+    if (pid > 0) exit(EXIT_SUCCESS);
+    //2 ubah mode file agar dapat di r/w
+    umask(0);
+    //3 buat session id unik dari kernel agar dpt berjalan
+    sid = setsid();
+    //error handling
+    if (sid < 0) exit(EXIT_FAILURE);
+    //4 ubah dir kerja ke tempat yang pasti selalu ada
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+    //5 tutup file descriptor std
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
 ```
-sub
+Merupakan step untuk daemon proses
 ```cpp
-//source code here
+    //main program
+    string pathEnak="/home/rak/Documents/makanan/makan_enak.txt";
+    int inc=1;
+    //6 loop utama jika diperlukan program berjalan kontinyu
+    while(true)
+    {
+        //membandingkan range 0-30
+        struct stat statEnak;
+        stat(pathEnak.c_str(), &statEnak);
+        time_t timeProgram = time(NULL);
+        time_t timeEnak = statEnak.st_atime;
+
+        //jika perbedaan detik program dengan detik akses terakhir file <= 30
+        if (difftime(timeProgram,timeEnak)<=30) {
+            //generate file diet
+            string pathSehat="/home/rak/Documents/makanan/makan_sehat";
+            pathSehat += to_string(inc) + ".txt";
+            open((char*)pathSehat.c_str(),O_CREAT,0777);
+            inc++;
+        }
+        //setiap 5 detik delay = berjalan setiap 5 detik
+        sleep(5);
+    }
 ```
-sub
+Looping utama mengambil informasi mengenai file makan_enak.txt dan waktu program berjalan saat itu. Kemudian dilakukan komparasi jika selisih waktu program dengan waktu akses terakhir dari file masuk didalm range 0-30 detik, maka buat file makan_sehat dengan increment angka berekstensi txt pada folder yang sama. Program lalu delay selama 5 detik.
 ```cpp
-//source code here
+    exit(EXIT_SUCCESS);
 ```
-sub
+Default untuk keluar daemon
+
+2. Lalu compile file tadi dan jalankan di terminal
+
+3. Lakukan simulasi test. Lewat terminal command `touch -a /home/[user]/Documents/makanan/makan_enak.txt`. Tak berapa lama akan muncul makan_sehat#.txt.
 
 ---
 
@@ -507,17 +755,152 @@ int main() {
 ```
 Penjelasan:
 ```cpp
-//source code here
+//fungsi untuk format filename
+string FileName(int flag)
+{
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    string fileName;
+    if (flag==0)
+    {
+        //initiate first time
+        fileName = to_string(tm.tm_mday) +":"+ to_string(tm.tm_mon+1) +":"+ to_string(tm.tm_year+1900);
+        fileName += "-" + to_string(tm.tm_hour) +":"+ to_string(tm.tm_min);
+        return fileName;
+    }
+    else if (flag==1)
+    {
+        //adding 30 min
+        tm.tm_min+=30;
+        //adjust the right time
+        mktime(&tm);
+        fileName = to_string(tm.tm_mday) +":"+ to_string(tm.tm_mon+1) +":"+ to_string(tm.tm_year+1900);
+        fileName += "-" + to_string(tm.tm_hour) +":"+ to_string(tm.tm_min);
+        return fileName;
+    }
+}
 ```
-sub
+Merupakan fungsi guna menggenerate waktu saat itu dan waktu 30 menit kedepan untuk keperluan main program.
 ```cpp
-//source code here
+    pid_t pid, sid;
+    //1 fork parent
+    pid = fork();
+    //error handling
+    if (pid < 0) exit(EXIT_FAILURE);
+    //1 stop parent = orphan process
+    if (pid > 0) exit(EXIT_SUCCESS);
+    //2 ubah mode file agar dapat di r/w
+    umask(0);
+    //3 buat session id unik dari kernel agar dpt berjalan
+    sid = setsid();
+    //error handling
+    if (sid < 0) exit(EXIT_FAILURE);
+    //4 ubah dir kerja ke tempat yang pasti selalu ada
+    if ((chdir("/")) < 0) exit(EXIT_FAILURE);
+    //5 tutup file descriptor std
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
 ```
-sub
+Merupakan step untuk daemon proses
 ```cpp
-//source code here
+    //main program
+
+    //buat dir log sesuai soal
+    string pathName="/home/rak/log/";
+    mkdir(pathName.c_str(),0777);
+
+    //fork-kan daemon/orphan child
+    pid = fork();
+    if (pid==0)
+    {
+        //child
+        //6 loop utama jika diperlukan program berjalan kontinyu
+        while(true)
+        {
+            //buat dir format folder sesuai soal
+            string folder=FileName(0);
+            mkdir((pathName + folder).c_str(),0777);
+            cout << "folder " << pathName + folder << endl;
+            sleep(1800);
+            //sleep 1800 == delayed hingga ke-1800 sec
+        }
+    }
+    else if (pid>0)
+    {
+        //parent
+        //6 loop utama jika diperlukan program berjalan kontinyu
+        //counter filename, variabel pembeda, variabel filename+30 min scr berturut-turut
+        int flag=0;
+        int diff=0;
+        string alterFolder;
+        while(true)
+        {
+            //penentuan filename atau filename+30 min
+            string folder;
+            string now=FileName(0);
+
+            //cek eksistensi folder
+            struct stat st;
+            // cout << "\tf " << folder << endl;
+            // cout << "\tn " << now << endl;
+            // cout << "\taf " << alterFolder << endl;
+            if (diff==0)
+            {   //kondisi awal
+                folder=FileName(0);
+                alterFolder=FileName(1);
+                // cout << "diff0" << endl;
+            }
+            else if (diff!=0 && now==alterFolder && stat((pathName + alterFolder).c_str(),&st)==0)
+            {   //kondisi setelah folder pertama:harus ada folder+30 min, cegah infinite loop
+                folder=alterFolder;
+                alterFolder=FileName(1);
+                // cout << "diff1" << endl;
+            }
+            if (stat((pathName + folder).c_str(),&st)==0 && folder.empty()==false)
+            {   //kondisi1=cek ada folder dan kondisi2=cek ada string folder
+                while(true){
+                    diff=1;
+                    //get file syslog and generate log#.log
+                    string systemLog="/var/log/syslog";
+                    string artificialLog=pathName + folder + "/log" + to_string(flag+1) + ".log";
+                    FILE *sL=fopen((char*)systemLog.c_str(),"r");
+                    FILE *aL=fopen((char*)artificialLog.c_str(),"w");
+
+                    //menghitung banyak character di syslog
+                    string input;
+                    int counter=0;
+                    ifstream streamKu(systemLog.c_str());
+                    if(streamKu.is_open())
+                    {
+                        while(getline(streamKu,input))
+                            counter+=input.length();
+                    }
+                    streamKu.close();
+
+                    //copying syslog to log#.log & close stream
+                    string konten;
+                    while((fgets((char*)konten.c_str(),counter,sL))!=NULL)
+                        fputs((char*)konten.c_str(),aL);
+                    cout << "file " << artificialLog << endl;
+                    fclose(sL);
+                    fclose(aL);
+
+                    //increment filename
+                    flag++;
+                    if (flag%30==0) break;
+                    sleep(60);
+                    //sleep 60 == delayed hingga ke-60 sec
+                }
+            }
+        }
+    }
 ```
-sub
+Jadi inti dari daemon ini adalah melakukan fork guna menghasilkan parent dan anak yang melakukan eksekusi generate folder dan generate file secara paralel melalui loop utama masing-masing.
+```cpp
+    exit(EXIT_SUCCESS);
+```
+Default untuk keluar daemon
 
 2. Buat program dibawah ini dengan nama file soal5b.cpp di folder yang ditentukan.
 
@@ -533,17 +916,16 @@ int main(){
 ```
 Penjelasan:
 ```cpp
-//source code here
+    char* hapus[]={(char*)"killall", (char*)"soal5a", NULL};
+    execv("/usr/bin/killall", hapus);
 ```
-sub
-```cpp
-//source code here
-```
-sub
-```cpp
-//source code here
-```
-sub
+Array of char dari hapus mengandung argumen untuk command killall yang berfungsi mematikan proses sebelumnya.
+
+3. Lalu compile kedua file tadi dan jalankan yang pertama di terminal.
+
+4. Lakukan simulasi test. File yang muncul pada folder yang terkait setiap 30 menit sebanyak 30 untuk hasil benarnya program pertama.
+
+5. Untuk test program kedua, jalankan file hasil compile di terminal. Maka proses sebelumnya akan diberhentikan.
 
 ---
 
@@ -565,4 +947,3 @@ https://stackoverflow.com/questions/20858381/what-does-bash-c-do
 https://www.geeksforgeeks.org/dup-dup2-linux-system-call/  
 https://www.geeksforgeeks.org/pipe-system-call/  
 https://stackoverflow.com/questions/7328327/how-to-get-files-owner-name-in-linux-using-c  
-
