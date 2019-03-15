@@ -17,7 +17,24 @@ Catatan : Tidak boleh menggunakan crontab.
 
 **Jawaban**
 
-1. 
+1. Buat program dibawah ini dengan nama file soal1.cpp di folder yang ditentukan.
+
+```cpp
+//source
+```
+Penjelasan:
+```cpp
+//source code here
+```
+sub
+```cpp
+//source code here
+```
+sub
+```cpp
+//source code here
+```
+sub
 
 ---
 ## NO 2
@@ -29,7 +46,24 @@ Catatan: Tidak boleh menggunakan crontab
 
 **Jawaban**
 
-1.
+1. Buat program dibawah ini dengan nama file soal2.cpp di folder yang ditentukan.
+
+```cpp
+//source
+```
+Penjelasan:
+```cpp
+//source code here
+```
+sub
+```cpp
+//source code here
+```
+sub
+```cpp
+//source code here
+```
+sub
 
 ---
 ## NO 3
@@ -50,7 +84,7 @@ Catatan:
 
 1. Buat program dibawah ini dengan nama file soal3.c di folder yang ditentukan.
 
-```cpp
+```c
 #include<stdio.h>
 #include<unistd.h>
 #include<sys/types.h>
@@ -475,3 +509,4 @@ https://stackoverflow.com/questions/28490290/how-can-i-pass-the-redirection-oper
 https://stackoverflow.com/questions/20858381/what-does-bash-c-do  
 https://www.geeksforgeeks.org/dup-dup2-linux-system-call/  
 https://www.geeksforgeeks.org/pipe-system-call/  
+https://askubuntu.com/questions/175054/how-to-find-owner-and-group-of-a-directory#175060  
