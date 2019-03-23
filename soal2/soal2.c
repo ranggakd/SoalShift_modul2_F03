@@ -1,17 +1,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fstream>
-#include <iostream>
 #include <stdio.h>
-#include <cstring>
+#include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <syslog.h>
-#include <time.h>
-
-using namespace std;
+#include <grp.h>
+#include <pwd.h>
 
 int main() {
     pid_t pid, sid;
@@ -35,27 +32,23 @@ int main() {
     close(STDERR_FILENO);
 
     //main program
-    string pathEnak="/home/rak/Documents/makanan/makan_enak.txt";
-    int inc=1;
+    char lokasi[150]={"/home/rak/SoalShift_modul2_F03/soal2/hatiku/elen.ku"};
     //6 loop utama jika diperlukan program berjalan kontinyu
-    while(true)
+    while(1)
     {
-        //membandingkan range 0-30
-        struct stat statEnak;
-        stat(pathEnak.c_str(), &statEnak);
-        time_t timeProgram = time(NULL);
-        time_t timeEnak = statEnak.st_atime;
+        //mendapatkan owner dan groupname dari file
+        struct stat info;
+        stat(lokasi, &info);
+        struct passwd *pw = getpwuid(info.st_uid);
+        struct group  *gr = getgrgid(info.st_gid);
+	char pelaku[100]={"www-data"};
 
-        //jika perbedaan detik program dengan detik akses terakhir file <= 30
-        if (difftime(timeProgram,timeEnak)<=30) {
-            //generate file diet
-            string pathSehat="/home/rak/Documents/makanan/makan_sehat";
-            pathSehat += to_string(inc) + ".txt";
-            open((char*)pathSehat.c_str(),O_CREAT,0777);
-            inc++;
-        }
-        //setiap 5 detik delay = berjalan setiap 5 detik
-        sleep(5);
+        //membandingkan jika samadengan www-data
+        if (strcmp(pw->pw_name,pelaku)==0 && strcmp(gr->gr_name,pelaku)==0)
+            remove(lokasi);
+
+        //setiap 3 detik delay = berjalan setiap 3 detik
+        sleep(3);
     }
     exit(EXIT_SUCCESS);
 }

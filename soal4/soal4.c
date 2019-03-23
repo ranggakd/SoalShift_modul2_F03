@@ -1,18 +1,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fstream>
-#include <iostream>
 #include <stdio.h>
-#include <cstring>
+#include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 #include <syslog.h>
-#include <grp.h>
-#include <pwd.h>
-
-using namespace std;
+#include <time.h>
 
 int main() {
     pid_t pid, sid;
@@ -36,24 +31,30 @@ int main() {
     close(STDERR_FILENO);
 
     //main program
-    string lokasi="/home/rak/SoalShift_modul2_F03/soal2/hatiku/elen.ku";
+    char pathEnak[100]={"/home/rak/Documents/makanan/makan_enak.txt"};
+    int inc=1;
     //6 loop utama jika diperlukan program berjalan kontinyu
-    while(true)
+    while(1)
     {
-        //mendapatkan owner dan groupname dari file
-        struct stat info;
-        stat((char*)lokasi.c_str(), &info);
-        struct passwd *pw = getpwuid(info.st_uid);
-        struct group  *gr = getgrgid(info.st_gid);
-        string usernm(pw->pw_name);
-        string groupnm(gr->gr_name);
+        //membandingkan range 0-30
+        struct stat statEnak;
+        stat(pathEnak, &statEnak);
+        time_t timeProgram = time(NULL);
+        time_t timeEnak = statEnak.st_atime;
 
-        //membandingkan jika samadengan www-data
-        if (usernm=="www-data" && groupnm=="www-data")
-            remove((char*)lokasi.c_str());
-
-        //setiap 3 detik delay = berjalan setiap 3 detik
-        sleep(3);
+        //jika perbedaan detik program dengan detik akses terakhir file <= 30
+        if (difftime(timeProgram,timeEnak)<=30)
+	{
+            //generate file diet
+            char pathSehat[100]={"/home/rak/Documents/makanan/makan_sehat"};
+	    char angka[10];
+	    sprintf(angka,"%d.txt",inc);
+	    strcat(pathSehat,angka);
+	    open(pathSehat,O_CREAT,0777);
+            inc++;
+        }
+        //setiap 5 detik delay = berjalan setiap 5 detik
+        sleep(5);
     }
     exit(EXIT_SUCCESS);
 }
